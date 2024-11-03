@@ -123,7 +123,7 @@ public class Grab : MonoBehaviour
             {
                 //isGrabbing = true;
                 grabbedObject = hitInfo.transform.gameObject;
-                float distanceFromPlayer = 1.0f;
+                /*float distanceFromPlayer = 1.0f;
 
 
                 
@@ -134,16 +134,16 @@ public class Grab : MonoBehaviour
                 // Position the object 1 unit away in the adjusted direction
                 grabbedObject.transform.position = playerPosition + adjustedDirection * distanceFromPlayer;
                 grabbedObject.transform.rotation = Quaternion.LookRotation(adjustedDirection);
-                
+               
 
                 grabbedObject.transform.parent = RHand;
                 grabbedObject.GetComponent<Rigidbody>().isKinematic = true;
-
-                //StartCoroutine(GrabDistance());
+                */
+                StartCoroutine(ApproachPlayer(grabbedObject));
 
 
                 Debug.Log("Successfully grabbed: " + grabbedObject.name);
-                //Debug.Log(grabbedObject.transform.position);
+                Debug.Log(grabbedObject.transform.position);
                 OVRInput.SetControllerVibration(1.0f, 1.0f, OVRInput.Controller.RTouch);
                 //초기 위치 값 지정
                 prevPos = RHandPosition;
@@ -204,17 +204,61 @@ public class Grab : MonoBehaviour
         }
     }
 
+    private IEnumerator ApproachPlayer(GameObject objectToMove)
+    {
+        float duration = 1f; // 물체가 다가오는 데 걸리는 시간 (초 단위)
+        float elapsed = 0f;
+
+        // 시작 위치와 목표 위치 설정
+        Vector3 startPosition = objectToMove.transform.position;
+        Vector3 playerPosition = Camera.main.transform.position;
+        Vector3 playerForward = Camera.main.transform.forward;
+
+        // 목표 위치를 플레이어 앞쪽 1 유닛, 10도 각도로 설정
+        float distanceFromPlayer = 1.0f;
+        Quaternion offsetRotation = Quaternion.AngleAxis(10, Camera.main.transform.up);
+        Vector3 adjustedDirection = offsetRotation * playerForward;
+        Vector3 targetPosition = playerPosition + adjustedDirection * distanceFromPlayer;
+
+        while (elapsed < duration)
+        {
+            // 경과 시간 업데이트
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration; // 0에서 1로 진행률 계산
+
+            // 물체를 목표 위치로 부드럽게 이동
+            objectToMove.transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+
+            yield return null;
+        }
+
+        // 코루틴이 끝났을 때 정확히 목표 위치에 설정
+        objectToMove.transform.position = targetPosition;
+        objectToMove.transform.rotation = Quaternion.LookRotation(adjustedDirection);
+        objectToMove.transform.parent = RHand;
+    }
     private IEnumerator GrabDistance()
     {
         float duration = 1f; // 물체가 다가오는 데 걸리는 시간 (초 단위)
         float elapsed = 0f;
+        Vector3 playerPosition = Camera.main.transform.position;
+        Vector3 playerForward = Camera.main.transform.forward;
+        float distanceFromPlayer = 10f;
+
 
         grabbedObject.GetComponent<Rigidbody>().isKinematic = false;
         // 시작 위치와 목표 위치 설정
         Vector3 startPosition = grabbedObject.transform.position;
         //목표 위치와 방향
-        Vector3 targetPosition = Camera.main.transform.position + Camera.main.transform.forward * 1f;
-        
+        Vector3 targetPosition = playerPosition + playerForward * distanceFromPlayer;
+
+        // Rotate the forward direction by 10 degrees
+        Quaternion offsetRotation = Quaternion.AngleAxis(10, Camera.main.transform.up);
+        Vector3 adjustedDirection = offsetRotation * playerForward;
+
+        // Position the object 1 unit away in the adjusted direction
+        grabbedObject.transform.position = playerPosition + adjustedDirection * distanceFromPlayer + Vector3.up * 10.0f;
+        grabbedObject.transform.rotation = Quaternion.LookRotation(adjustedDirection);
 
         while (elapsed < duration)
         {
@@ -227,7 +271,7 @@ public class Grab : MonoBehaviour
 
             yield return null;
         }
-
+        
         // 코루틴이 끝났을 때 정확히 목표 위치에 설정
         grabbedObject.transform.position = targetPosition;
         grabbedObject.transform.parent = RHand;

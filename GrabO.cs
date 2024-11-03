@@ -20,7 +20,7 @@ public class GrabO: MonoBehaviour
     // 이전 위치
     Vector3 prevPos;
     // 던질 힘
-    float throwPower = 10;
+    //float throwPower = 10;
     // 이전 회전
     Quaternion prevRot;
     // 회전력
