@@ -37,6 +37,8 @@ public class BombManager : MonoBehaviour
             {
                 GameObject bomb=Instantiate(bombfactory);
                 bomb.transform.position = bombPoints[i].transform.position;
+                //ÆøÅº¿¡ ÀÎµ¦½º¿Í BombManager Àü´Þ
+                bomb.GetComponent<Bomb>().SetIndex (i);
                 Bombused[i] = false;
             }
         }

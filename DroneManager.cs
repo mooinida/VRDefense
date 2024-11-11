@@ -9,8 +9,7 @@ public class DroneManager : MonoBehaviour
     public float maxTime = 5;
     //생성 시간
     float createTime;
-    //경과 시간
-    float currentTime;
+    
     //드론을 생성할 위치
     public Transform[] spawnPoints;
     //드론 공장
@@ -23,19 +22,22 @@ public class DroneManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       
+      
     }
+    
     IEnumerator SpawnDrone()
     {
-        float createTIme = Random.Range(minTime, maxTime);
+        while (true)
+        {
+            // 랜덤 생성 시간을 설정하고 기다림
+            createTime = Random.Range(minTime, maxTime);
+            yield return new WaitForSeconds(createTime);
 
-        yield return new WaitForSeconds(createTIme);
-
-        GameObject drone = Instantiate(droneFactory);
-
-        // 드론 위치를 랜덤으로 설정합니다.
-        int index = Random.Range(0, spawnPoints.Length);
-        drone.transform.position = spawnPoints[index].position;
+            // 드론을 생성하고 위치를 랜덤으로 설정
+            GameObject drone = Instantiate(droneFactory);
+            int index = Random.Range(0, spawnPoints.Length);
+            drone.transform.position = spawnPoints[index].position;
+        }
     }
 }
 
